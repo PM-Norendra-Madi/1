@@ -46,3 +46,10 @@ if(Bellman_Ford(G,V,k,edge))
 cout<<"\nNo negative weight cycle exists\n";
 return 0;
 }
+
+//vertices : 5
+/*0 6 0 0 7 
+0 0 5 -4 8
+0 0 0 0 0
+2 0 7 0 0
+0 0 0 9 0*/
