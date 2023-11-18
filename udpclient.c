@@ -1,49 +1,49 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <stdio.h>  // Include the necessary header for printf
-#include <errno.h>  // Include the necessary header for perror
-
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<errno.h>
+#include <unistd.h> 
+#define MAX 1024
 #define PORT 8080
-#define MAXLINE 1024
-
 int main() {
-    int sockfd;
-    char buffer[MAXLINE];
-    const char *hello = "Hello from client";
-    struct sockaddr_in servaddr;
-
-    // Creating socket file descriptor
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("socket creation failed");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(&servaddr, 0, sizeof(servaddr));
-
-    // Filling server information
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT);
-    servaddr.sin_addr.s_addr = INADDR_ANY;
-
-    int n;
-    socklen_t len;
-
-    sendto(sockfd, hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
-
-    printf("Hello message sent.\n");
-
-    len = sizeof(servaddr);
-    n = recvfrom(sockfd, buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &servaddr, &len);
-
-    buffer[n] = '\0';
-    printf("Server: %s\n", buffer);
-
-    close(sockfd);
-    return 0;
+	
+	int network_socket;
+	char buffer[MAX];
+	const char *hello = "Hello from client!";
+	
+	// creation of client socket
+	network_socket = socket(AF_INET,SOCK_DGRAM,0);
+	if(network_socket < 0)
+	{
+		perror("Socket creation failed!");
+		exit(EXIT_FAILURE);
+	}
+	
+	// define server address
+	struct sockaddr_in server_address;
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons(PORT);
+	server_address.sin_addr.s_addr = INADDR_ANY;
+	
+	int n;
+	socklen_t len;
+	
+	// sendto function in UDP sends the hello message to server
+	sendto(network_socket,(const char *)hello,strlen(hello),MSG_CONFIRM,(const struct sockaddr *)&server_address, sizeof(server_address));
+	
+	printf("Message sent to server!");
+	
+	len = sizeof(server_address);
+	
+	// recvfrom recieves the message from server
+	n = recvfrom(network_socket,buffer,MAX,MSG_WAITALL,(struct sockaddr *)&server_address, &len);
+	
+	buffer[n] = '\0';
+	printf("\nServer: %s\n",buffer);
+	
+	close(network_socket);
+	return 0;
 }
-
