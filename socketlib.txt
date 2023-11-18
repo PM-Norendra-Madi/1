@@ -7,3 +7,10 @@
 #include <netinet/in.h>
 #include <stdio.h>  // Include the necessary header for printf
 #include <errno.h>  // Include the necessary header for perror
+
+
+
+
+
+//only for file transfer(include in server code with rest other libs):
+#include<fcntl.h>
