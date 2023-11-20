@@ -1,0 +1,95 @@
+// C based C++ program on how to implement forward DNS look up cache
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define CHARS 27
+#define MAX 100
+
+int getIndex(char c)
+{
+    return (c == '.') ? 26 : (c - 'a');
+}
+
+char getCharFromIndex(int i)
+{
+    return (i == 26) ? '.' : ('a' + i);
+}
+  
+struct Trie
+{
+    bool isLeaf;
+    char* ipAdd;
+    struct Trie *child[CHARS];
+};
+
+struct Trie* newNode(void)
+{
+    struct Trie* newNode = new Trie;
+    newNode->isLeaf = false;
+    newNode->ipAdd = NULL;
+    for (int i = 0; i<CHARS; i++)
+        newNode->child[i] = NULL;
+    return newNode;
+}
+
+void insert(struct Trie* root, char* URL, char* ipAdd)
+{
+    int len = strlen(URL);
+    struct Trie* pCrawl = root;
+
+    for (int level = 0; level<len; level++)
+    {
+        int index = getIndex(URL[level]);
+  
+        if (!pCrawl->child[index])
+            pCrawl->child[index] = newNode();
+
+        pCrawl = pCrawl->child[index];
+    }
+
+    pCrawl->isLeaf = true;
+    pCrawl->ipAdd = new char[strlen(ipAdd) + 1];
+    strcpy(pCrawl->ipAdd, ipAdd);
+}
+
+char* searchDNSCache(struct Trie* root, char* URL)
+{
+    struct Trie* pCrawl = root;
+    int  len = strlen(URL);
+  
+    for (int level = 0; level<len; level++)
+    {
+        int index = getIndex(URL[level]);
+        if (!pCrawl->child[index])
+            return NULL;
+        pCrawl = pCrawl->child[index];
+    }
+  
+    if (pCrawl != NULL && pCrawl->isLeaf)
+        return pCrawl->ipAdd;
+  
+    return NULL;
+}
+
+int main()
+{
+    char URL[][50] = { "www.google.com", "www.facebook.com",
+                      "www.youtube.com", "www.yahoo.com"};
+    char ipAdd[][MAX] = { "172.217.166.68", "157.240.218.35",
+                          "78.155.223.109", "150.99.125.46"};
+    int n = sizeof(URL) / sizeof(URL[0]);
+    struct Trie* root = newNode();
+  
+    for (int i = 0; i<n; i++)
+        insert(root, URL[i], ipAdd[i]);  
+    char url1[] = "www.youtube.com"; 
+    char *res_ip1 = searchDNSCache(root, url1);
+    printf(" Performing Forward look up in the DNS cache ...\n");
+    if (res_ip1 != NULL)
+        printf(" Forward DNS cache look up Successful ! \n Hostname: %s --> IP address: %s", url1, res_ip1);
+    else
+        printf("Forward DNS cache look up Unsuccessful ! Hostname not present in DNS cache");
+  printf("\n\n");
+
+    return 0;
+}
